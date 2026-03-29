@@ -119,9 +119,9 @@ Results are saved to the path specified by `--output`. Example:
 
 ```json
 {
-  "val_accuracy_top1_imagenet_head": 0.0412,
-  "val_accuracy_top1_init_head": 0.0091,
-  "val_accuracy_top1_finetuned": 0.1735,
+  "val_accuracy_imagenet_head": 0.0412,
+  "val_accuracy_init_head": 0.0091,
+  "val_accuracy_finetuned": 0.1735,
   "n_batches": 32,
   "batch_size": 32,
   "layers_tuned": ["fc.weight", "fc.bias"],
