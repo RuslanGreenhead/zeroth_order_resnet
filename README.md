@@ -6,9 +6,11 @@ Here's the proofread and improved README:
 
 ## Assignment Overview
 
-In this assignment you will fine-tune a pretrained ResNet18 on the CIFAR100 dataset using **zero-order (gradient-free) optimization** — i.e. without computing any gradients. Your optimizer may only query the model as a black box, receiving scalar loss values in return.
+In this assignment you will fine-tune a pretrained ResNet18 on the CIFAR100 dataset using **zero-order (gradient-free) optimization** — i.e. without computing any gradients explicitly. Your optimizer may only query the model as a black box, receiving scalar loss values in return.
 
-The total compute budget is fixed in terms of **samples**: you get exactly `n_batches` optimizer steps, each operating on a mini-batch of size `batch_size`. The total number of samples used must not exceed **8192** (`n_batches × batch_size ≤ 8192`). Choose your split wisely — more steps means finer updates, larger batches means less noisy loss estimates.
+The total compute budget is fixed in terms of **samples**: you get exactly `n_batches` optimizer steps, each operating on a mini-batch of size `batch_size`. The total number of samples used must not exceed **8192** (`n_batches × batch_size ≤ 8192`). Choose your split wisely — more steps means finer updates, larger batches means less noisy loss estimates. 
+
+**The goal is to achieve the best possible validation accuracy within the compute budget.**
 
 You are free to edit the following files:
 
@@ -16,10 +18,6 @@ You are free to edit the following files:
 - `head_init.py`
 - `augmentation.py`
 - `train_data.py`
-
-You may control which training samples are used — you can select a fixed subset, sample randomly from CIFAR100, or even generate synthetic data.
-
-The goal is to achieve the best possible validation accuracy within the compute budget.
 
 ---
 
@@ -47,13 +45,14 @@ CIFAR100 will be downloaded automatically to `--data_dir` on the first run.
 
 ---
 
-## Files You Will Edit
+## Files You Can Edit
 
 | File | What to implement |
 |------|-------------------|
 | `zo_optimizer.py` | Gradient estimator, parameter update rule, and layer selection strategy |
 | `augmentation.py` | Training-time data augmentation pipeline |
 | `head_init.py` | Weight initialization for the new classification head |
+| `train_data.py` | Train dataset and dataloader initialization |
 
 **Do not edit** `validate.py` or `model.py`. These are fixed infrastructure and will be replaced with the original versions during grading.
 
@@ -97,6 +96,10 @@ Implement `init_last_layer(layer)` to initialize the new 100-class linear head. 
 - `nn.init.orthogonal_` — encourages diverse feature directions
 - Small-scale initialization (e.g. multiply weights by 0.01) — conservative starting point that avoids large initial loss values
 
+### `train_data.py` — Train data
+
+You may control which training samples are used — you can select a fixed subset, sample randomly from CIFAR100, or even generate synthetic data.
+
 ---
 
 ## Evaluation Checkpoints
@@ -131,4 +134,4 @@ Results are saved to the path specified by `--output`. Example:
 
 All accuracy values are in `[0, 1]` — multiply by 100 for percentages. Top-1 accuracy on the fine-tuned checkpoint is the sole metric used for grading.
 
-**top10_finetuned is our main metric for this assignment.**
+**`val_accuracy_top1_finetuned` is our main metric for this assignment.**
