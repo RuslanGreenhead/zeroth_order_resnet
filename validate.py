@@ -336,6 +336,7 @@ if __name__ == "__main__":
     optimizer = ZeroOrderOptimizer(model)
     print(f"  Active layers: {optimizer.layer_names}")
 
+    model.train()
     run_finetuning(
         model=model,
         train_loader=train_loader,
