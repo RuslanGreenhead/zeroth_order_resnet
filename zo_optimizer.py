@@ -173,23 +173,47 @@ class ZeroOrderOptimizer:
         # ------------------------------------------------------------------
         grads: dict[str, torch.Tensor] = {}
 
+        # with torch.no_grad():
+        #     for name, param in params.items():
+        #         u = self._sample_direction(param)
+
+        #         # f(x + eps * u)
+        #         param.data.add_(self.eps * u)
+        #         f_plus = loss_fn()
+
+        #         # f(x - eps * u)  — restore then subtract
+        #         param.data.sub_(2.0 * self.eps * u)
+        #         f_minus = loss_fn()
+
+        #         # Restore original value
+        #         param.data.add_(self.eps * u)
+
+        #         grad_estimate = ((f_plus - f_minus) / (2.0 * self.eps)) * u
+        #         grads[name] = grad_estimate
+
+        delta: dict[str, torch.Tensor] = {}
+        for name, param in params.items():
+            delta[name] = self._sample_direction(param)  
+    
         with torch.no_grad():
+            param_backup = {}
             for name, param in params.items():
-                u = self._sample_direction(param)
-
-                # f(x + eps * u)
-                param.data.add_(self.eps * u)
-                f_plus = loss_fn()
-
-                # f(x - eps * u)  — restore then subtract
-                param.data.sub_(2.0 * self.eps * u)
-                f_minus = loss_fn()
-
-                # Restore original value
-                param.data.add_(self.eps * u)
-
-                grad_estimate = ((f_plus - f_minus) / (2.0 * self.eps)) * u
-                grads[name] = grad_estimate
+                param_backup[name] = param.data.clone()
+                param.data.add_(self.eps * delta[name])
+            
+            f_plus = loss_fn()
+            
+            for name, param in params.items():
+                param.data.sub_(2 * self.eps * delta[name])
+            
+            f_minus = loss_fn()
+            
+            for name, param in params.items():
+                param.data.copy_(param_backup[name])
+            
+            coeff = (f_plus - f_minus) / (2 * self.eps)
+            for name, param in params.items():
+                grads[name] = coeff * delta[name]
 
         return grads
         # ------------------------------------------------------------------
