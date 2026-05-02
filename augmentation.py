@@ -41,14 +41,13 @@ def get_transforms(train: bool) -> T.Compose:
     if train:
         return T.Compose(
             [
-                # ----------------------------------------------------------
-                # STUDENT: Extend the training pipeline below.
-                # Keep the Resize and Normalize steps; add augmentations
-                # between or around them as appropriate.
-                # ----------------------------------------------------------
                 T.Resize(224),
-                T.RandomHorizontalFlip(),
-                # Add more augmentations here ↓
+                T.RandomHorizontalFlip(p=0.5),
+                T.RandomRotation(degrees=15),
+                T.RandomPerspective(distortion_scale=0.2, p=0.3),
+                T.RandomAffine(degrees=0, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
+                T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                T.RandomGrayscale(p=0.1),
                 T.ToTensor(),
                 T.Normalize(mean=_CIFAR100_MEAN, std=_CIFAR100_STD),
                 # ----------------------------------------------------------
