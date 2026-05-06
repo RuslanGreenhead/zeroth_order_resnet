@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 
 
-def init_last_layer(layer: nn.Linear) -> None:
+def init_last_layer(layer: nn.Linear, mode="xavier") -> None:
     """Initialize the weights and bias of the final classification layer in-place.
 
     This function is called once during model construction (see model.py).
@@ -32,6 +32,13 @@ def init_last_layer(layer: nn.Linear) -> None:
     # -------------------------------------------------------------------------
     # STUDENT: Replace or extend the initialization below.
     # -------------------------------------------------------------------------
-    nn.init.kaiming_uniform_(layer.weight, nonlinearity="relu")
-    nn.init.zeros_(layer.bias)
+    if mode == "xavier":
+        nn.init.xavier_uniform_(layer.weight)
+        nn.init.constant_(layer.bias, 0.0)
+    elif mode == "normal_pos_bias":
+        nn.init.normal_(layer.weight, mean=0.0, std=0.01)
+        nn.init.constant_(layer.bias, 0.1)
+    else:
+        nn.init.kaiming_uniform_(layer.weight, nonlinearity="relu")
+        nn.init.zeros_(layer.bias)
     # -------------------------------------------------------------------------
