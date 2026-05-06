@@ -15,7 +15,7 @@ _CIFAR100_MEAN = (0.5071, 0.4867, 0.4408)
 _CIFAR100_STD = (0.2675, 0.2565, 0.2761)
 
 
-def get_transforms(train: bool) -> T.Compose:
+def get_transforms(train: bool, train_mode=0) -> T.Compose:
     """Return the image transform pipeline for CIFAR100.
 
     Args:
@@ -39,20 +39,31 @@ def get_transforms(train: bool) -> T.Compose:
         *after* (tensor-level ops such as ``T.RandomErasing``).
     """
     if train:
-        return T.Compose(
-            [
-                T.Resize(224),
-                T.RandomHorizontalFlip(p=0.5),
-                T.RandomRotation(degrees=15),
-                T.RandomPerspective(distortion_scale=0.2, p=0.3),
-                T.RandomAffine(degrees=0, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
-                T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-                T.RandomGrayscale(p=0.1),
-                T.ToTensor(),
-                T.Normalize(mean=_CIFAR100_MEAN, std=_CIFAR100_STD),
-                # ----------------------------------------------------------
-            ]
-        )
+        if train_mode == 0:      # "full-scale" augmentation
+            return T.Compose(
+                [
+                    T.Resize(224),
+                    T.RandomHorizontalFlip(p=0.5),
+                    T.RandomRotation(degrees=15),
+                    T.RandomPerspective(distortion_scale=0.2, p=0.3),
+                    T.RandomAffine(degrees=0, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
+                    T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                    T.RandomGrayscale(p=0.1),
+                    T.ToTensor(),
+                    T.Normalize(mean=_CIFAR100_MEAN, std=_CIFAR100_STD),
+                    # ----------------------------------------------------------
+                ]
+            )
+        elif train_mode == 1:      # less severe augmentation
+            return T.Compose(
+                [  
+                    T.Resize(224),
+                    T.RandomHorizontalFlip(p=0.5),
+                    T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
+                    T.ToTensor(),
+                    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                ]
+            )
     else:
         # Fixed validation pipeline — do not modify.
         return T.Compose(
