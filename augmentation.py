@@ -65,6 +65,14 @@ def get_transforms(train: bool, train_mode=0) -> T.Compose:
                     T.Normalize(mean=_IMAGENET_MEAN, std=_IMAGENET_STD),
                 ]
             )
+        else:                         # no train augms case
+            return T.Compose(
+            [
+                T.Resize(224),
+                T.ToTensor(),
+                T.Normalize(mean=_CIFAR100_MEAN, std=_CIFAR100_STD),
+            ]
+        )
     else:
         # Fixed validation pipeline — do not modify.
         return T.Compose(
